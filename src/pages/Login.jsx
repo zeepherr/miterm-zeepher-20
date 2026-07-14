@@ -1,0 +1,102 @@
+import {
+  faCircleUser,
+  faCode,
+  faLock,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+import { Navigate, useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { login } from "../api/login";
+import { loginSchema } from "../schemas/loginSchema";
+import { useUserStore } from "../stores/userStore";
+
+const defaustValue = {
+  username: "",
+  password: "",
+};
+function Login() {
+  const [form, setForm] = useState(defaustValue);
+  const token = useUserStore(store => store.token)
+  const setUser = useUserStore((store) => store.setUser);
+  const setToken = useUserStore((store) => store.setToken);
+  const navigate = useNavigate();
+
+  const hdlOnChange = (evt) => {
+    setForm({ ...form, [evt.target.name]: evt.target.value });
+  };
+  const hdlSubmit = async (evt) => {
+    evt.preventDefault();
+    const validate = loginSchema.safeParse(form);
+    if (!validate.success) {
+      const { username, password } = validate.error.flatten().fieldErrors;
+      username && toast.error(username[0]);
+      password && toast.error(password[0]);
+    }
+
+    try {
+      const user = await login(validate.data);
+      const { token, username } = user.user;
+      setUser(user);
+      setToken(token);
+      navigate("/");
+      setForm(defaustValue);
+      toast.success("Login Successfully!");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  if(token) return <Navigate to={'/'} replace/>
+
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-130 min-h-110 shadow-xl rounded-xl bg-white p-5 flex flex-col ">
+        <div className="flex w-full flex-col items-center justify-center gap-3 ">
+          <FontAwesomeIcon
+            icon={faCode}
+            className="p-2 text-2xl  rounded-lg bg-blue-200 text-cyan-600"
+          />
+          <h1 className="text-2xl font-bold">Welcome</h1>
+          <p className="text-sm text-gray-400">
+            Please login to test Frontend system!
+          </p>
+          <form onSubmit={hdlSubmit} className="w-[70%] p-2 grid gap-5">
+            <div className="relative w-full  text-gray-400 fucus:text-blue-500">
+              <FontAwesomeIcon
+                icon={faCircleUser}
+                className="absolute top-[30%] left-1.5 "
+              />
+              <input
+                onChange={hdlOnChange}
+                value={form.username}
+                type="text"
+                name="username"
+                className="w-full pl-9 py-2.5 border border-gray-300 rounded-xl outline-blue-300"
+                placeholder="Username"
+              />
+            </div>
+            <div className="relative w-full text-gray-400 fucus:text-blue-500">
+              <FontAwesomeIcon
+                icon={faLock}
+                className="absolute top-[30%] left-1.5 "
+              />
+              <input
+                onChange={hdlOnChange}
+                type="password"
+                name="password"
+                value={form.password}
+                className="w-full pl-9 py-2.5 border border-gray-300 rounded-xl outline-blue-300"
+                placeholder="Passwrod"
+              />
+            </div>
+            <button className="bg-blue-600/90 cursor-pointer focus:bg-blue-700 text-white py-2.5 rounded-xl font-semibold w-full active:scale-95 transition-all duration-150 ease-in-out ">
+              Sign In
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
