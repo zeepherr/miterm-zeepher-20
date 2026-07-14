@@ -1,19 +1,14 @@
-import { faCircleXmark, faPencil } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router";
 import { toast } from "react-toastify";
-import {  updateTodo } from "../api/todo";
 import Loading from "../components/Loading";
 import { todoSche } from "../schemas/todoSchema";
 import { useTodoStore } from "../stores/todoStore";
 import { useUserStore } from "../stores/userStore";
-import Item from "../components/Item";
-import { createTodo } from './../api/todo';
+import Contents from "../components/Contents";
 
 const defaultV = {
   content: "",
-  
 };
 function Home() {
   const [form, setForm] = useState(defaultV);
@@ -31,21 +26,19 @@ function Home() {
       err && toast.error(valid.error.flatten().fieldErrors.content[0]);
     }
     try {
-       await createTodo(valid.data);
+      await createTodo(valid.data);
       toast.success("Created successfully!");
-      // fetch(user.userId);
       setForm(defaultV);
     } catch (error) {
       toast.error(error.message);
     }
   };
- 
+
   useEffect(() => {
     fetch(user.userId);
   }, []);
-
   if (!token) return <Navigate to={"/login"} replace />;
-  if (loading) return <Loading />;
+  if (loading || !user) return <Loading />;
   return (
     <div className="max-h-full max-w-200 mx-auto h-fit p-5 bg-white rounded-sm shadow-xl">
       <div className="">
@@ -62,11 +55,11 @@ function Home() {
             value={form.content}
             className="w-full py-2 px-3 outline-none focus:border-b focus:border-b-gray-300 focus:text-blue-500"
           />
-          <button className="text-white bg-blue-600/90 py-1 px-3 rounded-2xl text-center cursor-pointer">
+          <button className="text-white shadow-xl  bg-blue-600/90 py-1 px-3 rounded-2xl text-center cursor-pointer hover:bg-blue-700 ">
             Add
           </button>
         </form>
-        <Item/>
+        <Contents/>
       </div>
     </div>
   );

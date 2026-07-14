@@ -32,10 +32,11 @@ export const useTodoStore = create((set, get) => ({
       throw new Response(error);
     }
   },
-  updateTodo: async (payload, todoId) => {
+  updateTodo: async (todoId,payload) => {
     try {
       const res = await api.patch(`/todosv2/update/${todoId}`, payload);
-      set({content: [...get().content ,res.data]})
+      const update = res.data
+      set({content: [...get().content.map(item => item.id === update.id ? update : item)]})
     } catch (error) {
       throw new Response(error);
     }
