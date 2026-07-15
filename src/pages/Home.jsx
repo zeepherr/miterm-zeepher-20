@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router";
 import { toast } from "react-toastify";
+import Contents from "../components/Contents";
 import Loading from "../components/Loading";
 import { todoSche } from "../schemas/todoSchema";
 import { useTodoStore } from "../stores/todoStore";
 import { useUserStore } from "../stores/userStore";
-import Contents from "../components/Contents";
 
 const defaultV = {
   content: "",
@@ -13,8 +13,7 @@ const defaultV = {
 function Home() {
   const [form, setForm] = useState(defaultV);
   const loading = useTodoStore((store) => store.loading);
-  const user = useUserStore((store) => store.user.user);
-  const contents = useTodoStore((store) => store.content);
+  // const user = useUserStore((store) => store.user.user);
   const fetch = useTodoStore((store) => store.fetchTodo);
   const createTodo = useTodoStore((store) => store.createTodo);
   const token = useUserStore((store) => store.token);
@@ -35,10 +34,10 @@ function Home() {
   };
 
   useEffect(() => {
-    fetch(user.userId);
+    fetch();
   }, []);
   if (!token) return <Navigate to={"/login"} replace />;
-  if (loading || !user) return <Loading />;
+  if (loading) return <Loading />;
   return (
     <div className="max-h-full max-w-200 mx-auto h-fit p-5 bg-white rounded-sm shadow-xl">
       <div className="">
@@ -59,7 +58,7 @@ function Home() {
             Add
           </button>
         </form>
-        <Contents/>
+        <Contents />
       </div>
     </div>
   );

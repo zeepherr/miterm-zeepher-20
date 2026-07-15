@@ -27,7 +27,7 @@ function Contents() {
   const hdlUpdate = async (id, form) => {
     if (form.content.length === 0) {
       toast.error("Please enter some words!");
-      setEdit(0)
+      setEdit(0);
       return;
     }
     try {
